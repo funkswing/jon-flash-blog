@@ -8,8 +8,13 @@ class Mongo(object):
     def get_blog_titles(self, start=0):
         return self.db[self.COLL].find({}, {"title": 1}).sort("_id", -1).skip(start).limit(10)
 
-    def get_blog_post(self, title):
-        return self.db[self.COLL].find({"title": title})
+    def get_blog_previews(self):
+        return self.db[self.COLL].find(
+            {},
+            {"body": 0}).sort("_id", -1)
+
+    def get_blog_post(self, url_slug):
+        return self.db[self.COLL].find_one({"url_slug": url_slug})
 
     def insert_blog(self, blog_post):
         return self.db[self.COLL].insert(blog_post)

@@ -1,6 +1,8 @@
 from flask import current_app, Blueprint, render_template, jsonify, request
-from blog_post import BlogPost, dummy_posts, post1
+from blog_post import BlogPost, dummy_posts, dummy_post1
 from mongo import Mongo
+import json
+from bson import json_util
 
 from markdown import markdown
 from markdown.extensions.codehilite import CodeHiliteExtension
@@ -19,44 +21,54 @@ def record(state):
                         "database access through Flask-PyMongo")
 
 
+def get_mongo():
+    return Mongo(current_app.mongo.db)
+
+
 @blog.route('/posts')
 def get_blog_post():
     """Render the blog page."""
-    mongo = Mongo(current_app.mongo.db)
+    mongo = get_mongo()
 
     if request.args.get('start'):
         try:
             start = int(request.args.get('start'))
         except ValueError:  # If unable to cast arg value to int, set to 0
             start = 0
-        titles_cursor = mongo.get_blog_titles(start)
+        docs = mongo.get_blog_previews(start)
     else:
-        titles_cursor = mongo.get_blog_titles()
+        docs = mongo.get_blog_previews()
 
-    titles = [title['title'] for title in titles_cursor]
-    data = dict(
-        titles=titles
-    )
-    return jsonify(data)
+    data = json_util.dumps(docs)
+    return current_app.response_class(data, mimetype='application/json')
 
 
 @blog.route('/')
 def blog_home():
     """Render a blog post"""
+
+    posts_json = get_blog_post()
+    posts = json.loads(posts_json.data)
+
+    for post in posts:
+        post['year'] = post['year_month'][:4]
+        post['month'] = post['year_month'][4:]
+
     return render_template(
         'blog/blog.html',
         title="Coding Blog - ",
         logo="logo",
         header="Coding Blog",
-        skills="Or How I Did What I Did",
-        posts=dummy_posts()
+        skills="Or How I Did What I Did and What I Learned Along the Way",
+        posts=posts
     )
 
 
 @blog.route('/<int:year>/<int:month>/<string:slug>/')
 def blog_post(year, month, slug):
     """Render a blog post"""
+    mongo = get_mongo()
 
-    post = post1.as_dict()
+    post = mongo.get_blog_post(slug)
 
     return render_template('blog/post.html', post=post)
