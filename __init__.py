@@ -1,12 +1,8 @@
 from flask import current_app, Blueprint, render_template, jsonify, request
-from blog_post import BlogPost, dummy_posts, dummy_post1
+from blog_post import BlogPost, as_blog_post, dummy_posts, dummy_post1
 from mongo import Mongo
 import json
 from bson import json_util
-
-from markdown import markdown
-from markdown.extensions.codehilite import CodeHiliteExtension
-from markdown.extensions.extra import ExtraExtension
 
 
 blog = Blueprint('blog', __name__, url_prefix='/blog', template_folder='templates')
@@ -69,6 +65,12 @@ def blog_post(year, month, slug):
     """Render a blog post"""
     mongo = get_mongo()
 
-    post = mongo.get_blog_post(slug)
+    d = mongo.get_blog_post(slug)
+
+    author = d.pop('author')
+    title = d.pop('title')
+    subtitle = d.pop('subtitle')
+    body = d.pop('body')
+    post = BlogPost(author, title, subtitle, body)
 
     return render_template('blog/post.html', post=post)
