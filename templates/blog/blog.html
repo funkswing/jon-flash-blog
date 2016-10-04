@@ -1,5 +1,11 @@
 {% extends "base.html" %}
 
+{% block head %}
+    {{ super() }}
+    // Code Highlighting
+    <link href="/static/css/highlight.css" rel="stylesheet">
+{% endblock %}
+
 {% block header %}{% include "blog/header.html" %}{% endblock %}
 
 {% block nav %}{% include "blog/nav.html" %}{% endblock %}
