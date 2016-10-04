@@ -71,6 +71,7 @@ def blog_post(year, month, slug):
     title = d.pop('title')
     subtitle = d.pop('subtitle')
     body = d.pop('body')
-    post = BlogPost(author, title, subtitle, body)
+    timestamp = d.pop('timestamp')
+    post = BlogPost(author, title, subtitle, body, timestamp)
 
     return render_template('blog/post.html', post=post)

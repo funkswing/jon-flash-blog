@@ -8,12 +8,15 @@ from markdown.extensions.extra import ExtraExtension
 
 class BlogPost(object):
 
-    def __init__(self, author, title, subtitle, body):
+    def __init__(self, author, title, subtitle, body, timestamp=None):
         self.author = author
         self.title = title
         self.subtitle = subtitle
         self.body = body
-        self.timestamp = datetime.utcnow()
+        if not timestamp:
+            self.timestamp = datetime.utcnow()
+        else:
+            self.timestamp = timestamp
         self.url_slug = slugify(self.title)  # Mongo query on this field
 
     @property
@@ -42,7 +45,8 @@ def as_blog_post(d):
     title = d.pop('title')
     subtitle = d.pop('subtitle')
     body = d.pop('body')
-    return BlogPost(author, title, subtitle, body)
+    timestamp = d.pop('timestamp')
+    return BlogPost(author, title, subtitle, body, timestamp)
 
 
 dummy_post1 = BlogPost(
