@@ -44,15 +44,21 @@ def blog_home():
     """Render a blog post"""
 
     posts_json = get_blog_post()
-    posts = json.loads(posts_json.data)
+    posts_dicts = json.loads(posts_json.data)
 
-    for post in posts:
-        post['year'] = post['year_month'][:4]
-        post['month'] = post['year_month'][4:]
+    posts = []
+    for post in posts_dicts:
+        author = post['author']
+        title = post['title']
+        subtitle = post['subtitle']
+        body = None
+        timestamp = post['timestamp']
+        year_month = post['year_month']
+        posts.append(BlogPost(author, title, subtitle, body, timestamp, year=year_month[:4], month=year_month[4:]))
 
     return render_template(
         'blog/blog.html',
-        title="Coding Blog - ",
+        title="Coding Blog",
         logo="logo",
         header="Coding Blog",
         skills="Or How I Did What I Did and What I Learned Along the Way",
@@ -74,4 +80,8 @@ def blog_post(year, month, slug):
     timestamp = d.pop('timestamp')
     post = BlogPost(author, title, subtitle, body, timestamp)
 
-    return render_template('blog/post.html', post=post)
+    return render_template('blog/post.html',
+                           post=post,
+                           url="blog/{}/{}/{}".format(year, month, slug),
+                           title=title,
+                           description=subtitle)

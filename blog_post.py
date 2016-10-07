@@ -4,19 +4,22 @@ from slugify import slugify
 from markdown import markdown
 from markdown.extensions.codehilite import CodeHiliteExtension
 from markdown.extensions.extra import ExtraExtension
+from inflection import ordinalize
 
 
 class BlogPost(object):
 
-    def __init__(self, author, title, subtitle, body, timestamp=None):
+    def __init__(self, author, title, subtitle, body, timestamp=None, year=None, month=None):
         self.author = author
         self.title = title
         self.subtitle = subtitle
         self.body = body
-        if not timestamp:
-            self.timestamp = datetime.utcnow()
-        else:
-            self.timestamp = timestamp
+        self.timestamp = self._ensure_dt(timestamp)
+        self.time_str = self._format_ts(self.timestamp)
+        if year:
+            self.year = year
+        if month:
+            self.month = month
         self.url_slug = slugify(self.title)  # Mongo query on this field
 
     @property
@@ -26,6 +29,38 @@ class BlogPost(object):
         markdown_content = markdown(self.body, extensions=[hilite, extras])
 
         return Markup(markdown_content)  # http://flask.pocoo.org/snippets/19/
+
+    @staticmethod
+    def _ensure_dt(timestamp):
+        """
+        Ensure self.timestamp is a Python datetime.datetime object. BlogPost() receives 'timestamp'
+        attribute as either as a "time since Epoch (ms)" timestamp (from Mongo via JSON), as a
+        datetime.datetime object (direct Mongo query/PyMongo), or as None type, in which case a
+        new timestamp is created (for a newly published blog post)
+
+        :param timestamp:
+        :return: datetime.datetime
+        """
+        if type(timestamp) is dict and "$date" in timestamp.keys() and type(timestamp.get("$date")) is long:
+            return datetime.fromtimestamp(timestamp['$date'] / 1000)
+        if type(timestamp) is datetime:
+            return timestamp
+        else:
+            return datetime.utcnow()
+
+    @staticmethod
+    def _format_ts(timestamp):
+        """
+        Format a datatime.datetime object to a string, e.g. "Monday, October 7th 2016",
+         where the day of the month is an ordinal number without zero padding.
+        :param timestamp:
+        :return: string
+        """
+        if type(timestamp) is datetime:
+            # Convert datetime object to string, but remove zero-padding and "ordinalize" the day of month value
+            return timestamp.strftime("%A, %B {} %Y").format(
+                ordinalize(timestamp.strftime(" %d").replace(" 0", ""))
+            )
 
     def as_dict(self):
         return dict(
