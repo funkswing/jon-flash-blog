@@ -198,7 +198,7 @@ Commercial support is available at
 </html>
 ```
 
-That’s it! Obviously there are many more “plays” we could/should add to this Playbook to increase its robustness, but presented here is just enough of the iceberg to hit the ground running.
+That’s it! Obviously there are many more “plays” we could/should add to this Playbook to increase its robustness, such as enabling Docker as a service or creating addidtional users, but presented here is just enough of the iceberg to hit the ground running.
 
 More Playbook examples can be found:
 [http://docs.ansible.com/ansible/playbooks_intro.html](http://docs.ansible.com/ansible/playbooks_intro.html)
