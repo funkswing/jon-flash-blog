@@ -206,9 +206,9 @@ More Playbook examples can be found:
 
 ## Ansible Official Docs: 
 
-Install - http://docs.ansible.com/ansible/intro_installation.html
+Install - [http://docs.ansible.com/ansible/intro_installation.html](http://docs.ansible.com/ansible/intro_installation.html)
 
-Tutorial - http://docs.ansible.com/ansible/intro_getting_started.html
+Tutorial - [http://docs.ansible.com/ansible/intro_getting_started.html](http://docs.ansible.com/ansible/intro_getting_started.html)
 
-Become - http://docs.ansible.com/ansible/become.html
+Become - [http://docs.ansible.com/ansible/become.html](http://docs.ansible.com/ansible/become.html)
 
